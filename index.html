@@ -1,44 +1,78 @@
-<script>
-    document.getElementById('chat-form').addEventListener('submit', function(e) {
-        e.preventDefault();
-        var messageInput = document.getElementById('message');
-        var message = messageInput.value.trim();
-        if (message === '') return;
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Chatbot</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        #conversation {
+            border: 1px solid #ccc;
+            width: 500px;
+            height: 400px;
+            overflow-y: auto;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        #message {
+            width: 400px;
+        }
+        .user, .bot {
+            margin: 5px 0;
+        }
+        .user { text-align: right; }
+        .bot { text-align: left; }
+    </style>
+</head>
+<body>
+    <h1>Chatbot</h1>
+    <div id="conversation"></div>
+    <form id="chat-form">
+        <input type="text" id="message" name="message" placeholder="Digite sua mensagem aqui...">
+        <input type="submit" value="Enviar">
+    </form>
 
-        var conversation = document.getElementById('conversation');
+    <script>
+        document.getElementById('chat-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            var messageInput = document.getElementById('message');
+            var message = messageInput.value.trim();
+            if (message === '') return;
 
-        // Add the user's message to the chat
-        var userMessage = document.createElement('div');
-        userMessage.className = 'user';
-        userMessage.textContent = 'Você: ' + message;
-        conversation.appendChild(userMessage);
+            var conversation = document.getElementById('conversation');
 
-        // Clear the input field
-        messageInput.value = '';
+            // Adiciona a mensagem do usuário ao chat
+            var userMessage = document.createElement('div');
+            userMessage.className = 'user';
+            userMessage.textContent = 'Você: ' + message;
+            conversation.appendChild(userMessage);
 
-        // Make the request to the server
-        var xhr = new XMLHttpRequest();
-        xhr.open('POST', '/chat');
-        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-        xhr.onload = function() {
-            if (xhr.status === 200) {
-                // Parse JSON response
-                var data = JSON.parse(xhr.responseText);
-                var botMessage = document.createElement('div');
-                botMessage.className = 'bot';
-                botMessage.textContent = 'Chatbot: ' + data.response;
-                conversation.appendChild(botMessage);
-                conversation.scrollTop = conversation.scrollHeight;
-            } else {
-                console.error("Server error or bad response.");
-                alert("Error: Could not communicate with the server.");
-            }
-        };
-        xhr.onerror = function() {
-            console.error("Request failed.");
-            alert("Request failed.");
-        };
-        xhr.send('message=' + encodeURIComponent(message));
-    });
-</script>
+            // Limpa o campo de entrada
+            messageInput.value = '';
+
+            // Faz a requisição ao servidor
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', '/chat');
+            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    var data = JSON.parse(xhr.responseText);
+                    var botMessage = document.createElement('div');
+                    botMessage.className = 'bot';
+                    botMessage.textContent = 'Chatbot: ' + data.response;
+                    conversation.appendChild(botMessage);
+                    conversation.scrollTop = conversation.scrollHeight;
+                } else {
+                    console.error("Erro na resposta do servidor.");
+                    alert("Erro: Não foi possível se comunicar com o servidor.");
+                }
+            };
+            xhr.onerror = function() {
+                console.error("Falha na requisição.");
+                alert("Falha na requisição.");
+            };
+            xhr.send('message=' + encodeURIComponent(message));
+        });
+    </script>
+</body>
+</html>
 
