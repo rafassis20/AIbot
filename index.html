@@ -1,0 +1,44 @@
+<script>
+    document.getElementById('chat-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        var messageInput = document.getElementById('message');
+        var message = messageInput.value.trim();
+        if (message === '') return;
+
+        var conversation = document.getElementById('conversation');
+
+        // Add the user's message to the chat
+        var userMessage = document.createElement('div');
+        userMessage.className = 'user';
+        userMessage.textContent = 'Você: ' + message;
+        conversation.appendChild(userMessage);
+
+        // Clear the input field
+        messageInput.value = '';
+
+        // Make the request to the server
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', '/chat');
+        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+        xhr.onload = function() {
+            if (xhr.status === 200) {
+                // Parse JSON response
+                var data = JSON.parse(xhr.responseText);
+                var botMessage = document.createElement('div');
+                botMessage.className = 'bot';
+                botMessage.textContent = 'Chatbot: ' + data.response;
+                conversation.appendChild(botMessage);
+                conversation.scrollTop = conversation.scrollHeight;
+            } else {
+                console.error("Server error or bad response.");
+                alert("Error: Could not communicate with the server.");
+            }
+        };
+        xhr.onerror = function() {
+            console.error("Request failed.");
+            alert("Request failed.");
+        };
+        xhr.send('message=' + encodeURIComponent(message));
+    });
+</script>
+
